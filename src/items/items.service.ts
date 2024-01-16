@@ -34,8 +34,19 @@ export class ItemsService {
     return newItem;
   }
 
-  async findAll(): Promise<Item[]> {
-    return await this.itemRepository.find();
+  async findAll(collectionId: number): Promise<Item[]> {
+    const collection = await this.collectionRepository.findOne({
+      where: { id: collectionId },
+    });
+    if (!collection) {
+      throw new NotFoundException(
+        `Collection with ID ${collectionId} not found.`,
+      );
+    }
+
+    return this.itemRepository.find({
+      where: { collection: { id: collectionId } },
+    });
   }
 
   async findOne(id: number): Promise<Item> {

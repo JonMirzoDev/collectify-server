@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -37,8 +38,8 @@ export class ItemsController {
   }
 
   @Get()
-  findAll() {
-    return this.itemsService.findAll();
+  findAll(@Query('collectionId') collectionId: string) {
+    return this.itemsService.findAll(+collectionId);
   }
 
   @Get(':id')
