@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsArray, IsNumber } from 'class-validator';
 
 export class CreateItemDto {
   @IsNotEmpty()
@@ -12,4 +12,8 @@ export class CreateItemDto {
   @IsArray()
   @IsString({ each: true })
   readonly tags: string[];
+
+  @IsNotEmpty()
+  @IsNumber()
+  readonly collectionId: number;
 }

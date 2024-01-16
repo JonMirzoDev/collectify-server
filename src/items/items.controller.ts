@@ -9,47 +9,58 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
+interface AuthenticatedUser {
+  id: number;
+}
+
+interface RequestWithUser extends Request {
+  user: AuthenticatedUser;
+}
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
-  // Only authenticated users can create items
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createItemDto: CreateItemDto) {
-    return this.itemsService.create(createItemDto);
+  create(@Body() createItemDto: CreateItemDto, @Req() req: RequestWithUser) {
+    const userId = req.user.id;
+    return this.itemsService.create(createItemDto, userId);
   }
 
-  // Everyone can view all items
   @Get()
   findAll() {
     return this.itemsService.findAll();
   }
 
-  // Everyone can view a single item
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.itemsService.findOne(+id);
   }
 
-  // Only authenticated users can update items
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    return this.itemsService.update(+id, updateItemDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateItemDto: UpdateItemDto,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.id;
+    return this.itemsService.update(+id, updateItemDto, userId);
   }
 
-  // Only authenticated users can delete items
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.itemsService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const userId = req.user.id;
+    return this.itemsService.remove(+id, userId);
   }
 }
