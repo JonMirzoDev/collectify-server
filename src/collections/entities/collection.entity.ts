@@ -1,3 +1,4 @@
+import { Item } from 'src/items/entities/item.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -5,6 +6,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -30,4 +32,10 @@ export class Collection {
 
   @Column()
   userId: number;
+
+  @OneToMany(() => Item, (item) => item.collection, {
+    cascade: true, // automatically handle insert/update/delete operations
+    eager: false, // set to true if you always want to load items with collections
+  })
+  items: Item[]; // Define the items property
 }
