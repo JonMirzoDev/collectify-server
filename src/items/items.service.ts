@@ -20,7 +20,6 @@ export class ItemsService {
   ) {}
 
   async create(createItemDto: CreateItemDto, userId: number): Promise<Item> {
-    // Retrieve the collection using the correct format for findOne
     const collection = await this.collectionRepository.findOne({
       where: { id: createItemDto.collectionId },
     });
