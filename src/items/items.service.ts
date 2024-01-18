@@ -45,6 +45,9 @@ export class ItemsService {
 
     return this.itemRepository.find({
       where: { collection: { id: collectionId } },
+      order: {
+        id: 'DESC',
+      },
     });
   }
 
