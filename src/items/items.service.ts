@@ -29,8 +29,23 @@ export class ItemsService {
     }
 
     const newItem = this.itemRepository.create(createItemDto);
+    newItem.searchText = this.createSearchText(newItem);
     await this.itemRepository.save(newItem);
     return newItem;
+  }
+
+  async search(query: string): Promise<Item[]> {
+    if (!query.trim()) {
+      throw new NotFoundException('The search query cannot be empty.');
+    }
+
+    return this.itemRepository
+      .createQueryBuilder('item')
+      .where(
+        `to_tsvector(item.name || ' ' || item.description || ' ' || item.tags) @@ plainto_tsquery(:query)`,
+        { query },
+      )
+      .getMany();
   }
 
   async findAll(collectionId: number): Promise<Item[]> {
@@ -76,8 +91,16 @@ export class ItemsService {
       throw new UnauthorizedException();
     }
 
-    // Update logic here...
-    return this.itemRepository.save({ ...item, ...updateItemDto });
+    Object.assign(item, updateItemDto);
+    item.searchText = this.createSearchText(item);
+    return this.itemRepository.save(item);
+  }
+
+  private createSearchText(item: Item): string {
+    const searchText = `${item.name} ${item.description} ${item.tags.join(
+      ' ',
+    )}`;
+    return searchText;
   }
 
   async remove(id: number, userId: number): Promise<void> {

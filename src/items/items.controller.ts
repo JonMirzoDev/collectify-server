@@ -42,6 +42,11 @@ export class ItemsController {
     return this.itemsService.findAll(+collectionId);
   }
 
+  @Get('/search')
+  search(@Query('query') query: string) {
+    return this.itemsService.search(query);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.itemsService.findOne(+id);

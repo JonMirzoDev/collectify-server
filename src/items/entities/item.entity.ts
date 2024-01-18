@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Collection } from '../../collections/entities/collection.entity';
 
@@ -20,6 +21,10 @@ export class Item {
 
   @Column('simple-array')
   tags: string[];
+
+  @Column('tsvector', { select: false, nullable: true })
+  @Index()
+  searchText: string;
 
   @ManyToOne(() => Collection, (collection) => collection.items, {
     onDelete: 'CASCADE', // optional: to delete items when the collection is deleted
