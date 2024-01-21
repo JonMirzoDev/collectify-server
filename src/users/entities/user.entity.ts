@@ -17,6 +17,12 @@ export class User {
   @Exclude()
   password: string;
 
+  @Column({ default: false })
+  isAdmin: boolean;
+
+  @Column({ default: false })
+  isBlocked: boolean;
+
   @OneToMany(() => Collection, (collection) => collection.user)
   collections: Collection[];
 

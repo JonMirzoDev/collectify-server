@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Collection } from './entities/collection.entity';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
@@ -18,11 +18,11 @@ export class CollectionsService {
 
   async create(
     createCollectionDto: CreateCollectionDto,
-    userId: number,
+    userId?: number,
   ): Promise<Collection> {
     const newCollection = this.collectionRepository.create({
       ...createCollectionDto,
-      userId: userId,
+      userId: userId ?? null, // Use null if userId is not provided
     });
     return this.collectionRepository.save(newCollection);
   }
@@ -56,19 +56,20 @@ export class CollectionsService {
 
   async update(
     id: number,
-    userId: number,
     updateCollectionDto: UpdateCollectionDto,
+    userId: number,
+    isAdmin?: boolean,
   ): Promise<Collection> {
     const collection = await this.collectionRepository.findOne({
       where: { id },
     });
 
     if (!collection) {
-      throw new EntityNotFoundError(Collection, id);
+      throw new NotFoundException(`Collection with ID ${id} not found`);
     }
 
-    if (collection.userId !== userId) {
-      // Handle unauthorized update attempt, e.g., throw an error
+    // Skip the permission check if the user is an admin
+    if (!isAdmin && userId !== collection.userId) {
       throw new UnauthorizedException(
         'You do not have permission to update this collection.',
       );
@@ -78,19 +79,19 @@ export class CollectionsService {
     return this.collectionRepository.findOneOrFail({ where: { id } });
   }
 
-  async remove(id: number, userId: number): Promise<void> {
+  async remove(id: number, userId?: number, isAdmin?: boolean): Promise<void> {
     const collection = await this.collectionRepository.findOne({
       where: { id },
     });
 
     if (!collection) {
-      throw new EntityNotFoundError(Collection, id);
+      throw new NotFoundException(`Collection with ID ${id} not found`);
     }
 
-    if (collection.userId !== userId) {
-      // Handle unauthorized delete attempt, e.g., throw an error
+    // Only check user permissions if userId is provided
+    if (!isAdmin && userId !== collection.userId) {
       throw new UnauthorizedException(
-        'You do not have permission to delete this collection.',
+        'You do not have permission to update this collection.',
       );
     }
 

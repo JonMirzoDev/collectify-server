@@ -8,5 +8,6 @@ import { Collection } from './entities/collection.entity';
   imports: [TypeOrmModule.forFeature([Collection])],
   controllers: [CollectionsController],
   providers: [CollectionsService],
+  exports: [CollectionsService, TypeOrmModule.forFeature([Collection])],
 })
 export class CollectionsModule {}

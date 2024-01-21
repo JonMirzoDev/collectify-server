@@ -19,16 +19,29 @@ export class ItemsService {
     private collectionRepository: Repository<Collection>,
   ) {}
 
-  async create(createItemDto: CreateItemDto, userId: number): Promise<Item> {
+  async create(
+    createItemDto: CreateItemDto,
+    userId: number,
+    isAdmin?: boolean,
+  ): Promise<Item> {
     const collection = await this.collectionRepository.findOne({
       where: { id: createItemDto.collectionId },
     });
 
-    if (!collection || collection.userId !== userId) {
-      throw new UnauthorizedException();
+    if (!collection) {
+      throw new NotFoundException(
+        `Collection with ID ${createItemDto.collectionId} not found.`,
+      );
+    }
+
+    if (!isAdmin && userId !== collection.userId) {
+      throw new UnauthorizedException(
+        'You do not have permission to add items to this collection.',
+      );
     }
 
     const newItem = this.itemRepository.create(createItemDto);
+    newItem.collection = collection;
     newItem.searchText = this.createSearchText(newItem);
     await this.itemRepository.save(newItem);
     return newItem;
@@ -78,22 +91,27 @@ export class ItemsService {
     id: number,
     updateItemDto: UpdateItemDto,
     userId: number,
+    isAdmin?: boolean,
   ): Promise<Item> {
     const item = await this.itemRepository.findOne({
       where: { id },
       relations: ['collection'],
     });
+
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found.`);
     }
 
-    if (item.collection.userId !== userId) {
-      throw new UnauthorizedException();
+    if (!isAdmin && userId !== item.collection.userId) {
+      throw new UnauthorizedException(
+        'You do not have permission to update this item.',
+      );
     }
 
     Object.assign(item, updateItemDto);
     item.searchText = this.createSearchText(item);
-    return this.itemRepository.save(item);
+    await this.itemRepository.save(item);
+    return item;
   }
 
   private createSearchText(item: Item): string {
@@ -103,17 +121,20 @@ export class ItemsService {
     return searchText;
   }
 
-  async remove(id: number, userId: number): Promise<void> {
+  async remove(id: number, userId: number, isAdmin?: boolean): Promise<void> {
     const item = await this.itemRepository.findOne({
       where: { id },
       relations: ['collection'],
     });
+
     if (!item) {
       throw new NotFoundException(`Item with ID ${id} not found.`);
     }
 
-    if (item.collection.userId !== userId) {
-      throw new UnauthorizedException();
+    if (!isAdmin && userId !== item.collection.userId) {
+      throw new UnauthorizedException(
+        'You do not have permission to delete this item.',
+      );
     }
 
     await this.itemRepository.delete(id);

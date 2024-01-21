@@ -61,9 +61,8 @@ export class CollectionsController {
     @Body() updateCollectionDto: UpdateCollectionDto,
     @Req() req: RequestWithUser,
   ) {
-    // Extract user from RequestWithUser
-    const user = req.user;
-    return this.collectionsService.update(+id, user.id, updateCollectionDto);
+    const userId = req.user.id; // Extract userId from the AuthenticatedUser
+    return this.collectionsService.update(+id, updateCollectionDto, userId);
   }
 
   @UseGuards(AuthGuard('jwt'))

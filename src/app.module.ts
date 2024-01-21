@@ -7,6 +7,7 @@ import { ItemsModule } from './items/items.module';
 import { AuthModule } from './auth/auth.module';
 import { CollectionsModule } from './collections/collections.module';
 import { dataSourceOptions } from './data-source';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { dataSourceOptions } from './data-source';
     ItemsModule,
     AuthModule,
     CollectionsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
