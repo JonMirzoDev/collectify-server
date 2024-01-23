@@ -42,11 +42,9 @@ export class CollectionsController {
     return this.collectionsService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('user')
-  findUserCollections(@Req() req: RequestWithUser) {
-    const user = req.user;
-    return this.collectionsService.findAllByUserId(user.id);
+  @Get('users/:userId')
+  findUserCollections(@Param('userId') userId: number) {
+    return this.collectionsService.findAllByUserId(userId);
   }
 
   @Get(':id')

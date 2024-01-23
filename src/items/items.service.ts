@@ -61,6 +61,36 @@ export class ItemsService {
       .getMany();
   }
 
+  async findAllItems(): Promise<Item[]> {
+    return this.itemRepository.find({
+      relations: ['collection', 'collection.user'],
+      order: {
+        id: 'DESC',
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        tags: true,
+        collection: {
+          id: true,
+          user: {
+            id: true,
+            username: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findAllTags(): Promise<string[]> {
+    const items = await this.itemRepository.find();
+    const allTags = items.map((item) => item.tags).flat();
+    const uniqueTags = [...new Set(allTags)];
+    return uniqueTags;
+  }
+
   async findAll(collectionId: number): Promise<Item[]> {
     const collection = await this.collectionRepository.findOne({
       where: { id: collectionId },

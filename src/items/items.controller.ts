@@ -37,6 +37,16 @@ export class ItemsController {
     return this.itemsService.create(createItemDto, userId);
   }
 
+  @Get('/all')
+  findAllItems() {
+    return this.itemsService.findAllItems();
+  }
+
+  @Get('/tags')
+  findAllTags() {
+    return this.itemsService.findAllTags();
+  }
+
   @Get()
   findAll(@Query('collectionId') collectionId: string) {
     return this.itemsService.findAll(+collectionId);

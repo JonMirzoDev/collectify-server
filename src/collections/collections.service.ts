@@ -36,12 +36,13 @@ export class CollectionsService {
   }
 
   async findAllByUserId(userId: number): Promise<Collection[]> {
-    return this.collectionRepository.find({
-      where: { userId: userId },
-      order: {
-        id: 'DESC',
-      },
-    });
+    return this.collectionRepository
+      .createQueryBuilder('collection')
+      .leftJoinAndSelect('collection.user', 'user')
+      .select(['collection', 'user.username', 'user.email'])
+      .where('user.id = :userId', { userId })
+      .orderBy('collection.id', 'DESC')
+      .getMany();
   }
 
   async findOne(id: number): Promise<Collection> {
