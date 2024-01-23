@@ -17,6 +17,7 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { OptionalAuthGuard } from 'src/guards/optionalAuth.guard';
 
 interface AuthenticatedUser {
   id: number;
@@ -37,9 +38,11 @@ export class ItemsController {
     return this.itemsService.create(createItemDto, userId);
   }
 
+  @UseGuards(OptionalAuthGuard)
   @Get('/all')
-  findAllItems() {
-    return this.itemsService.findAllItems();
+  findAllItems(@Req() req: RequestWithUser) {
+    const userId = req.user ? req.user.id : undefined;
+    return this.itemsService.findAllItemsWithLikeStatus(userId);
   }
 
   @Get('/tags')
@@ -47,19 +50,28 @@ export class ItemsController {
     return this.itemsService.findAllTags();
   }
 
+  @UseGuards(OptionalAuthGuard)
   @Get()
-  findAll(@Query('collectionId') collectionId: string) {
-    return this.itemsService.findAll(+collectionId);
+  findAll(
+    @Query('collectionId') collectionId: string,
+    @Req() req?: RequestWithUser,
+  ) {
+    const userId = req?.user ? req.user.id : undefined;
+    return this.itemsService.findAll(+collectionId, userId);
   }
 
+  @UseGuards(OptionalAuthGuard)
   @Get('/search')
-  search(@Query('query') query: string) {
-    return this.itemsService.search(query);
+  search(@Query('query') query: string, @Req() req: RequestWithUser) {
+    const userId = req.user ? req.user.id : undefined;
+    return this.itemsService.search(query, userId);
   }
 
+  @UseGuards(OptionalAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req?: RequestWithUser) {
+    const userId = req?.user ? req.user.id : undefined;
+    return this.itemsService.findOne(+id, userId);
   }
 
   @UseGuards(AuthGuard('jwt'))

@@ -5,8 +5,11 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
 import { Collection } from '../../collections/entities/collection.entity';
+import { Like } from 'src/likes/entities/like.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
 
 @Entity({ name: 'items' })
 export class Item {
@@ -27,12 +30,17 @@ export class Item {
   searchText: string;
 
   @ManyToOne(() => Collection, (collection) => collection.items, {
-    onDelete: 'CASCADE', // optional: to delete items when the collection is deleted
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'collectionId' }) // This will create a foreign key column named 'collectionId'
+  @JoinColumn({ name: 'collectionId' })
   collection: Collection;
 
-  // If you have collectionId as a separate field
+  @OneToMany(() => Comment, (comment) => comment.item)
+  comments: Comment[];
+
+  @OneToMany(() => Like, (like) => like.item)
+  likes: Like[];
+
   @Column()
   collectionId: number;
 }
