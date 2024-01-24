@@ -16,6 +16,12 @@ export const dataSourceOptions: DataSourceOptions = {
   database: process.env.DB_DATABASE,
   entities: [User, Item, Collection, Like, Comment],
   synchronize: true,
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
 };
 
 const dataSource = new DataSource(dataSourceOptions);
