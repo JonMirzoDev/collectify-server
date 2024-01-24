@@ -158,7 +158,7 @@ export class ItemsService {
   }
 
   async findAllTags(): Promise<string[]> {
-    const items = await this.itemRepository.find();
+    const items = await this.itemRepository.find({ order: { id: 'DESC' } });
     const allTags = items.map((item) => item.tags).flat();
     const uniqueTags = [...new Set(allTags)];
     return uniqueTags;
