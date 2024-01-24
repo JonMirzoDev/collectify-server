@@ -12,14 +12,26 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  host: isProduction ? process.env.PROD_DB_HOST : process.env.DB_HOST,
+  port: isProduction
+    ? parseInt(process.env.PROD_DB_PORT, 10)
+    : parseInt(process.env.DB_PORT, 10),
+  username: isProduction
+    ? process.env.PROD_DB_USERNAME
+    : process.env.DB_USERNAME,
+  password: isProduction
+    ? process.env.PROD_DB_PASSWORD
+    : process.env.DB_PASSWORD,
+  database: isProduction
+    ? process.env.PROD_DB_DATABASE
+    : process.env.DB_DATABASE,
   entities: [User, Item, Collection, Like, Comment],
   synchronize: !isProduction,
-  ssl: isProduction ? { rejectUnauthorized: false } : null,
+  ssl: isProduction
+    ? {
+        rejectUnauthorized: false,
+      }
+    : null,
 };
 
 const dataSource = new DataSource(dataSourceOptions);
